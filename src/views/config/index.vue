@@ -9,45 +9,26 @@
                         <el-switch v-model="auto_refresh"></el-switch>
                     </div>
                 </div>
-                <!-- Empty -->
-                <el-col class="data" v-if="empty">
-                    <div class="card text-align-center padding-tb-6-rem">
-                        <h2 class="font-size-24 font-weight-normal color-text-secondary">没有正在运行的查询任务</h2>
-                        <div class="break-3-rem"></div>
-                    </div>
-                </el-col>
 
-                <!-- Have data-->
                 <el-col class="data" v-else>
                     <div class="card padding-tb-1-rem padding-lr-2-rem" v-loading="loading_lists">
-                        <el-table :data="lists" style="width: 100%">
-                            <el-table-column prop="name" label="名称" width="150"></el-table-column>
-                            <el-table-column label="出发日期">
-                                <template slot-scope="scope">
-                                    {{ scope.row.left_dates.join(', ') }}
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="乘客人数" width="120">
-                                <template slot-scope="scope">
-                                    <el-tag size="medium">{{ scope.row.member_num }}</el-tag>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="部分提交" width="120">
-                                <template slot-scope="scope">
-                                    <el-switch v-model="scope.row.allow_less_member" disabled></el-switch>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="座位">
-                                <template slot-scope="scope">
-                                    {{ scope.row.allow_seats.join(', ') }}
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="筛选车次">
-                                <template slot-scope="scope">
-                                    {{ scope.row.allow_train_numbers.join(', ') }}
-                                </template>
-                            </el-table-column>
-                        </el-table>
+                        <el-form ref="form" :model="config.USER_ACCOUNTS" label-width="80px">
+                            <el-form-item label="二维码验证方式">
+                                <el-select v-model="config.USER_ACCOUNTS.type" placeholder="默认为二维码">
+                                    <el-option label="二维码" value="qr"></el-option>
+                                </el-select>
+
+                            </el-form-item>
+                            <el-form-item>
+                                <el-input type="query_interval" v-model.number="config.QUERY_INTERVAL"
+                                          autocomplete="off"></el-input>
+                            </el-form-item>
+                                                        <el-form-item>
+                                <el-input type="user_heartbeat_interval" v-model.number="config.USER_HEARTBEAT_INTERVAL"
+                                          autocomplete="off"></el-input>
+                            </el-form-item>
+
+                        </el-form>
                     </div>
                 </el-col>
             </el-row>
@@ -57,42 +38,58 @@
 
 <script>
 
-    export default {
-        data() {
-            return {
-                empty: false,
-                lists: [],
-                loading_lists: false,
-                retry_time: 5,
-                auto_refresh: true
-            }
+export default {
+    data() {
+        return {
+            empty: false,
+            config: {
+                USER_ACCOUNTS:
+                    {
+                        'key': 0, // 如使用多个账号 key 不能重复
+                        'user_name':
+                            'your user name',
+                        'password':
+                            '忽略',
+                        'type':
+                            'qr'
+                        // qr 为扫码登录，填写其他为密码登录
+                    },
+            },
+            QUERY_INTERVAL: 0.5,
+            USER_HEARTBEAT_INTERVAL : 120,
+            loading_lists: false,
+            retry_time:
+                5,
+            auto_refresh:
+                true
+        }
+    },
+    mounted() {
+        this.refreshData()
+    },
+    methods: {
+        async refreshData() {
+            if (this.$route.path != '/config') return
+            if (this.auto_refresh)
+                await this.getLists()
+            setTimeout(this.refreshData, this.retry_time * 1000)
         },
-        mounted() {
-            this.refreshData()
-        },
-        methods: {
-            async refreshData() {
-                if (this.$route.path != '/config') return
-                if (this.auto_refresh)
-                    await this.getLists()
-                setTimeout(this.refreshData, this.retry_time * 1000)
-           },
-            async getLists(loading = true) {
-                if (loading) this.loading_lists = true
-                await this.$api.get_query().then(res => {
-                    if (!res.data || res.data.length <= 0) this.empty = true
-                    else this.empty = false
-                    this.lists = res.data
-                    this.loading_lists = false
-                }).catch(error => {
-                    this.loading_lists = false
-                })
-            }
+        async getLists(loading = true) {
+            if (loading) this.loading_lists = true
+            await this.$api.get_query().then(res => {
+                if (!res.data || res.data.length <= 0) this.empty = true
+                else this.empty = false
+                this.lists = res.data
+                this.loading_lists = false
+            }).catch(error => {
+                this.loading_lists = false
+            })
         }
     }
+}
 </script>
 
 <style scoped lang="scss">
-    @import "../../assets/scss/variables";
+@import "../../assets/scss/variables";
 
 </style>
