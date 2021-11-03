@@ -13,6 +13,7 @@ import USER_INDEX from '../views/user/index'
 import LOG_REALTIME from '../views/log/realtime'
 
 import QUERY_INDEX from '../views/query/index'
+import CONFIG_INDEX from '../views/config/index'
 
 import HELP_INDEX from '../views/help/index'
 import HELP_README from '../views/help/readme'
@@ -34,6 +35,7 @@ const routes = [
             {path: 'log/realtime', component: LOG_REALTIME},
 
             {path: 'query', component: QUERY_INDEX},
+            {path: 'config', component: CONFIG_INDEX},
 
             {path: 'help', component: HELP_INDEX},
             {path: 'help/readme', component: HELP_README},
