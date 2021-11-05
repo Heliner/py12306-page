@@ -12,23 +12,84 @@
 
                 <el-col class="data" v-else>
                     <div class="card padding-tb-1-rem padding-lr-2-rem" v-loading="loading_lists">
-                        <el-form ref="form" :model="config.USER_ACCOUNTS" label-width="80px">
-                            <el-form-item label="二维码验证方式">
-                                <el-select v-model="config.USER_ACCOUNTS.type" placeholder="默认为二维码">
-                                    <el-option label="二维码" value="qr"></el-option>
-                                </el-select>
-
+                        <el-form ref="form" :model="config" label-width="80px">
+                            <el-form-item>
+                                <el-input type="number" v-model="config.USER_ACCOUNTS_TF[0].KEY"
+                                          autocomplete="off">
+                                </el-input>
                             </el-form-item>
                             <el-form-item>
-                                <el-input type="query_interval" v-model.number="config.QUERY_INTERVAL"
-                                          autocomplete="off"></el-input>
+                                <el-input type="number" v-model="config.USER_ACCOUNTS_TF[0].USER_NAME"
+                                          autocomplete="off">
+                                </el-input>
                             </el-form-item>
-                                                        <el-form-item>
-                                <el-input type="user_heartbeat_interval" v-model.number="config.USER_HEARTBEAT_INTERVAL"
-                                          autocomplete="off"></el-input>
+                            <el-form-item>
+                                <el-input type="number" v-model="config.USER_ACCOUNTS_TF[0].PASSWORD"
+                                          autocomplete="off">
+                                </el-input>
                             </el-form-item>
+                            <el-form-item label="二维码验证方式">
+                                <el-select v-model="config.USER_ACCOUNTS_TF[0].TYPE" placeholder="默认为二维码">
+                                    <el-option label="二维码" value="qr"/>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-input type="number" v-model="config.QUERY_INTERVAL"
+                                          autocomplete="off">
 
+                                </el-input>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-input type="number" v-model="config.USER_HEARTBEAT_INTERVAL"
+                                          autocomplete="off">
+                                </el-input>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-input type="number" v-model="config.QUERY_JOB_THREAD_ENABLED"
+                                          autocomplete="off">
+                                </el-input>
+                            </el-form-item>
+                            <!--                            路程設定 -->
+                            <el-table :data="config.QUERY_JOBS" style="width: 100%" border>
+                                <el-table-column type="selection" width="55" align="center">
+                                </el-table-column>
+                                <el-table-column align="center">
+                                    <template slot="header" slot-scope="scope">
+                                        <span style="color:#2d65dc;">成员名称</span>
+                                        <i style="color:#F56C6C;">*</i>
+                                    </template>
+                                    <template slot-scope="scope">
+                                        <el-form-item
+                                            :prop="'QUERY_JOBS.' + scope.$index + '.account_key'">
+                                            <el-input
+                                                type="text"
+                                                autocomplete="off"
+                                            ></el-input>
+                                        </el-form-item>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column align="center">
+                                    <template slot="header" slot-scope="scope">
+                                        <span style="color:#2d65dc;">成员值</span>
+                                        <i style="color:#F56C6C;">*</i>
+                                    </template>
+                                    <template slot-scope="scope">
+                                        <el-form-item
+                                            :prop="'params.' + scope.$index + '.value'"
+                                            :rules="addJsonForm.addJsonRules.value"
+                                        >
+                                            <el-input
+                                                type="text"
+                                                v-model="scope.row.value"
+                                                autocomplete="off"
+                                            ></el-input>
+                                        </el-form-item>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                            <!--                        變更后需要處理重啓的重要配置         -->
                         </el-form>
+
                     </div>
                 </el-col>
             </el-row>
@@ -43,6 +104,7 @@ export default {
         return {
             empty: false,
             config: {
+                // 需要替換的項目使用_TF結尾
                 USER_ACCOUNTS:
                     {
                         'key': 0, // 如使用多个账号 key 不能重复
@@ -54,9 +116,18 @@ export default {
                             'qr'
                         // qr 为扫码登录，填写其他为密码登录
                     },
+                USER_ACCOUNTS_TF: {
+                    key:0,
+                    user_name:'',
+                    password:'',
+                    type:'qr',
+                },
+                QUERY_INTERVAL: 0.5,
+                USER_HEARTBEAT_INTERVAL: 120,
+                QUERY_JOBS: [],
+                QUERY_JOBS_TF:[],
             },
-            QUERY_INTERVAL: 0.5,
-            USER_HEARTBEAT_INTERVAL : 120,
+
             loading_lists: false,
             retry_time:
                 5,
