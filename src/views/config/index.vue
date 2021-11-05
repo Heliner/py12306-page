@@ -36,7 +36,6 @@
                             <el-form-item>
                                 <el-input type="number" v-model="config.QUERY_INTERVAL"
                                           autocomplete="off">
-
                                 </el-input>
                             </el-form-item>
                             <el-form-item>
@@ -44,50 +43,50 @@
                                           autocomplete="off">
                                 </el-input>
                             </el-form-item>
-                            <el-form-item>
-                                <el-input type="number" v-model="config.QUERY_JOB_THREAD_ENABLED"
+                            <!--                            事件标签-->
+                            <el-form-item label="账户key" hidden="true">
+                                <el-input type="number" v-model="config.QUERY_JOBS_TF[0].account_key"
                                           autocomplete="off">
                                 </el-input>
                             </el-form-item>
-                            <!--                            路程設定 -->
-                            <el-table :data="config.QUERY_JOBS" style="width: 100%" border>
-                                <el-table-column type="selection" width="55" align="center">
-                                </el-table-column>
-                                <el-table-column align="center">
-                                    <template slot="header" slot-scope="scope">
-                                        <span style="color:#2d65dc;">成员名称</span>
-                                        <i style="color:#F56C6C;">*</i>
-                                    </template>
-                                    <template slot-scope="scope">
-                                        <el-form-item
-                                            :prop="'QUERY_JOBS.' + scope.$index + '.account_key'">
-                                            <el-input
-                                                type="text"
-                                                autocomplete="off"
-                                            ></el-input>
-                                        </el-form-item>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column align="center">
-                                    <template slot="header" slot-scope="scope">
-                                        <span style="color:#2d65dc;">成员值</span>
-                                        <i style="color:#F56C6C;">*</i>
-                                    </template>
-                                    <template slot-scope="scope">
-                                        <el-form-item
-                                            :prop="'params.' + scope.$index + '.value'"
-                                            :rules="addJsonForm.addJsonRules.value"
-                                        >
-                                            <el-input
-                                                type="text"
-                                                v-model="scope.row.value"
-                                                autocomplete="off"
-                                            ></el-input>
-                                        </el-form-item>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-                            <!--                        變更后需要處理重啓的重要配置         -->
+                            <el-form-item label="出发站点">
+                                <el-input type="number" v-model="config.QUERY_JOBS_TF[0].stations.left"
+                                          autocomplete="off">
+                                </el-input>
+                            </el-form-item>
+
+                            <el-form-item label="到达站点">
+                                <el-input type="number" v-model="config.QUERY_JOBS_TF[0].stations.arrive"
+                                          autocomplete="off">
+                                </el-input>
+                            </el-form-item>
+                            <el-form-item label="到达站点">
+                                <el-input type="number" v-model="config.QUERY_JOBS_TF[0].stations.arrive"
+                                          autocomplete="off">
+                                </el-input>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-tag
+                                    :key="tag"
+                                    v-for="tag in dynamicTags"
+                                    closable
+                                    :disable-transitions="false"
+                                    @close="handleClose(tag)">
+                                    {{ tag }}
+                                </el-tag>
+                                <el-input
+                                    class="input-new-tag"
+                                    v-if="inputVisible"
+                                    v-model="inputValue"
+                                    ref="saveTagInput"
+                                    size="small"
+                                    @keyup.enter.native="handleInputConfirm"
+                                    @blur="handleInputConfirm"
+                                >
+                                </el-input>
+                                <el-button v-else class="button-new-tag" size="small" @click="showInput">+ 日期
+                                </el-button>
+                            </el-form-item>
                         </el-form>
 
                     </div>
@@ -99,6 +98,8 @@
 
 <script>
 
+import config from "../../plugins/axios/config";
+
 export default {
     data() {
         return {
@@ -108,24 +109,18 @@ export default {
                 USER_ACCOUNTS:
                     {
                         'key': 0, // 如使用多个账号 key 不能重复
-                        'user_name':
-                            'your user name',
-                        'password':
-                            '忽略',
-                        'type':
-                            'qr'
+                        'user_name': 'your user name',
+                        'password': '忽略',
+                        'type': 'qr',
                         // qr 为扫码登录，填写其他为密码登录
                     },
                 USER_ACCOUNTS_TF: {
-                    key:0,
-                    user_name:'',
-                    password:'',
-                    type:'qr',
+                    ...config.USER_ACCOUNTS
                 },
                 QUERY_INTERVAL: 0.5,
                 USER_HEARTBEAT_INTERVAL: 120,
                 QUERY_JOBS: [],
-                QUERY_JOBS_TF:[],
+                QUERY_JOBS_TF: [...config.QUERY_JOBS],
             },
 
             loading_lists: false,
@@ -155,6 +150,25 @@ export default {
             }).catch(error => {
                 this.loading_lists = false
             })
+        },
+        handleClose(tag) {
+            this.config.QUERY_JOBS_TF.left_dates.splice(this.config.QUERY_JOBS_TF.left_dates.indexOf(tag), 1);
+        },
+
+        showInput() {
+            this.inputVisible = true;
+            this.$nextTick(_ => {
+                this.$refs.saveTagInput.$refs.input.focus();
+            });
+        },
+
+        handleInputConfirm() {
+            let inputValue = this.inputValue;
+            if (inputValue) {
+                this.dynamicTags.push(inputValue);
+            }
+            this.inputVisible = false;
+            this.inputValue = '';
         }
     }
 }
