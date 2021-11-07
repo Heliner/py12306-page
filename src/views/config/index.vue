@@ -2,93 +2,60 @@
     <div id="account-index" class="container">
         <el-container>
             <el-row class="width-full">
-                <div class="action-group">
-                    <h2 class="action-title">查询任务</h2>
-                    <div class="refresh-switch">
-                        <span class="helper-text margin-right-s5-rem">自动刷新 <span v-text="retry_time"></span> 秒</span>
-                        <el-switch v-model="auto_refresh"></el-switch>
-                    </div>
-                </div>
-
-                <el-col class="data" v-else>
+                <el-col class="data">
                     <div class="card padding-tb-1-rem padding-lr-2-rem" v-loading="loading_lists">
-                        <el-form ref="form" :model="config" label-width="80px">
-                            <el-form-item>
-                                <el-input type="number" v-model="config.USER_ACCOUNTS_TF[0].KEY"
-                                          autocomplete="off">
-                                </el-input>
-                            </el-form-item>
-                            <el-form-item>
-                                <el-input type="number" v-model="config.USER_ACCOUNTS_TF[0].USER_NAME"
-                                          autocomplete="off">
-                                </el-input>
-                            </el-form-item>
-                            <el-form-item>
-                                <el-input type="number" v-model="config.USER_ACCOUNTS_TF[0].PASSWORD"
-                                          autocomplete="off">
-                                </el-input>
-                            </el-form-item>
+                        <el-form ref="form" :model="config" label-width="280px">
                             <el-form-item label="二维码验证方式">
-                                <el-select v-model="config.USER_ACCOUNTS_TF[0].TYPE" placeholder="默认为二维码">
+                                <el-select v-model="config.USER_ACCOUNTS_TF[0].type" placeholder="默认为二维码">
                                     <el-option label="二维码" value="qr"/>
                                 </el-select>
                             </el-form-item>
-                            <el-form-item>
+                           <el-form-item label="乘客">
+                                <el-input type="text" v-model="config.QUERY_JOBS_TF[0].members" placeholder="与已认证乘客一致,如:张三,李四">
+                                </el-input>
+                            </el-form-item>
+                            <el-form-item label="查询间隔(秒)">
                                 <el-input type="number" v-model="config.QUERY_INTERVAL"
                                           autocomplete="off">
                                 </el-input>
                             </el-form-item>
-                            <el-form-item>
+                            <el-form-item label="登录状态检查间隔(秒)">
                                 <el-input type="number" v-model="config.USER_HEARTBEAT_INTERVAL"
                                           autocomplete="off">
                                 </el-input>
                             </el-form-item>
                             <!--                            事件标签-->
-                            <el-form-item label="账户key" hidden="true">
-                                <el-input type="number" v-model="config.QUERY_JOBS_TF[0].account_key"
-                                          autocomplete="off">
-                                </el-input>
-                            </el-form-item>
                             <el-form-item label="出发站点">
-                                <el-input type="number" v-model="config.QUERY_JOBS_TF[0].stations.left"
-                                          autocomplete="off">
-                                </el-input>
-                            </el-form-item>
-
-                            <el-form-item label="到达站点">
-                                <el-input type="number" v-model="config.QUERY_JOBS_TF[0].stations.arrive"
+                                <el-input type="text" v-model="config.QUERY_JOBS_TF[0].stations[0].left"
                                           autocomplete="off">
                                 </el-input>
                             </el-form-item>
                             <el-form-item label="到达站点">
-                                <el-input type="number" v-model="config.QUERY_JOBS_TF[0].stations.arrive"
+                                <el-input type="text" v-model="config.QUERY_JOBS_TF[0].stations[0].arrive"
                                           autocomplete="off">
                                 </el-input>
                             </el-form-item>
-                            <el-form-item>
-                                <el-tag
-                                    :key="tag"
-                                    v-for="tag in dynamicTags"
-                                    closable
-                                    :disable-transitions="false"
-                                    @close="handleClose(tag)">
-                                    {{ tag }}
-                                </el-tag>
-                                <el-input
-                                    class="input-new-tag"
-                                    v-if="inputVisible"
-                                    v-model="inputValue"
-                                    ref="saveTagInput"
-                                    size="small"
-                                    @keyup.enter.native="handleInputConfirm"
-                                    @blur="handleInputConfirm"
-                                >
+                            <el-form-item label="出发日期">
+                                <el-input type="text" v-model="config.QUERY_JOBS_TF[0].stations[0].left_dates"
+                                          autocomplete="off" placeholder="如2021-10-1,1998-2-2">
                                 </el-input>
-                                <el-button v-else class="button-new-tag" size="small" @click="showInput">+ 日期
-                                </el-button>
+                            </el-form-item>
+                            <el-form-item label="座位类型">
+                                <el-select v-model="config.QUERY_JOBS_TF[0].stations[0].seats" multiple placeholder="请选择">
+                                    <el-option
+                                      v-for="item in seats_options"
+                                      :key="item"
+                                      :label="item"
+                                      :value="item">
+                                    </el-option>
+                                  </el-select>
+                            </el-form-item>
+                            <el-form-item label="车次">
+                                <el-input type="text" v-model="config.QUERY_JOBS_TF[0].stations[0].train_numbers"
+                                          autocomplete="off" placeholder="如K10,G632;为空代表全选">
+                                </el-input>
                             </el-form-item>
                         </el-form>
-
                     </div>
                 </el-col>
             </el-row>
@@ -107,22 +74,44 @@ export default {
             config: {
                 // 需要替換的項目使用_TF結尾
                 USER_ACCOUNTS:
-                    {
+                    [{
                         'key': 0, // 如使用多个账号 key 不能重复
                         'user_name': 'your user name',
                         'password': '忽略',
                         'type': 'qr',
                         // qr 为扫码登录，填写其他为密码登录
-                    },
-                USER_ACCOUNTS_TF: {
-                    ...config.USER_ACCOUNTS
-                },
+                    },],
+                USER_ACCOUNTS_TF: [{
+                    'key': 0, // 如使用多个账号 key 不能重复
+                    'user_name': 'your user name',
+                    'password': '忽略',
+                    'type': 'qr',
+                    // qr 为扫码登录，填写其他为密码登录
+                },],
                 QUERY_INTERVAL: 0.5,
                 USER_HEARTBEAT_INTERVAL: 120,
                 QUERY_JOBS: [],
-                QUERY_JOBS_TF: [...config.QUERY_JOBS],
-            },
+                QUERY_JOBS_TF: [
+                    {
+                        account_key: 0,
+                        stations: [{
+                            left: '',
+                            arrive: '',
+                            left_dates:'',
+                            seats:[],
+                            train_numbers:'',
+                        }]
+                    }
+                ],
 
+            },
+            tmp:{
+                inputVisible:true,
+                inputValue:'',
+            },
+            seats_options:[
+                '特等座', '商务座', '一等座', '二等座', '软卧', '硬卧', '动卧', '软座', '硬座', '无座'
+            ],
             loading_lists: false,
             retry_time:
                 5,
@@ -151,25 +140,11 @@ export default {
                 this.loading_lists = false
             })
         },
-        handleClose(tag) {
-            this.config.QUERY_JOBS_TF.left_dates.splice(this.config.QUERY_JOBS_TF.left_dates.indexOf(tag), 1);
-        },
+        parseFront2Backend:function (){
+            // 复制原来的config到新的变量中，并将原来的类list的字符串转化为list
+            let backendData = {}
 
-        showInput() {
-            this.inputVisible = true;
-            this.$nextTick(_ => {
-                this.$refs.saveTagInput.$refs.input.focus();
-            });
         },
-
-        handleInputConfirm() {
-            let inputValue = this.inputValue;
-            if (inputValue) {
-                this.dynamicTags.push(inputValue);
-            }
-            this.inputVisible = false;
-            this.inputValue = '';
-        }
     }
 }
 </script>
