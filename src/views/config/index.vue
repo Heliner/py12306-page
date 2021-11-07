@@ -10,8 +10,9 @@
                                     <el-option label="二维码" value="qr"/>
                                 </el-select>
                             </el-form-item>
-                           <el-form-item label="乘客">
-                                <el-input type="text" v-model="config.QUERY_JOBS_TF[0].members" placeholder="与已认证乘客一致,如:张三,李四">
+                            <el-form-item label="乘客">
+                                <el-input type="text" v-model="config.QUERY_JOBS_TF[0].members"
+                                          placeholder="与已认证乘客一致,如:张三,李四">
                                 </el-input>
                             </el-form-item>
                             <el-form-item label="查询间隔(秒)">
@@ -41,14 +42,15 @@
                                 </el-input>
                             </el-form-item>
                             <el-form-item label="座位类型">
-                                <el-select v-model="config.QUERY_JOBS_TF[0].stations[0].seats" multiple placeholder="请选择">
+                                <el-select v-model="config.QUERY_JOBS_TF[0].stations[0].seats" multiple
+                                           placeholder="请选择">
                                     <el-option
-                                      v-for="item in seats_options"
-                                      :key="item"
-                                      :label="item"
-                                      :value="item">
+                                        v-for="item in seats_options"
+                                        :key="item"
+                                        :label="item"
+                                        :value="item">
                                     </el-option>
-                                  </el-select>
+                                </el-select>
                             </el-form-item>
                             <el-form-item label="车次">
                                 <el-input type="text" v-model="config.QUERY_JOBS_TF[0].stations[0].train_numbers"
@@ -64,8 +66,6 @@
 </template>
 
 <script>
-
-import config from "../../plugins/axios/config";
 
 export default {
     data() {
@@ -97,19 +97,19 @@ export default {
                         stations: [{
                             left: '',
                             arrive: '',
-                            left_dates:'',
-                            seats:[],
-                            train_numbers:'',
+                            left_dates: '',
+                            seats: [],
+                            train_numbers: '',
                         }]
                     }
                 ],
 
             },
-            tmp:{
-                inputVisible:true,
-                inputValue:'',
+            tmp: {
+                inputVisible: true,
+                inputValue: '',
             },
-            seats_options:[
+            seats_options: [
                 '特等座', '商务座', '一等座', '二等座', '软卧', '硬卧', '动卧', '软座', '硬座', '无座'
             ],
             loading_lists: false,
@@ -140,7 +140,7 @@ export default {
                 this.loading_lists = false
             })
         },
-        parseFront2Backend:function (){
+        parseFront2Backend: function () {
             // 复制原来的config到新的变量中，并将原来的类list的字符串转化为list
             let backendData = {}
 
