@@ -7,8 +7,8 @@ import {LOAD_TOKEN} from "../store/mutation-types"
 import LAYOUT_APP from '../views/layouts/app'
 import HOME_INDEX from '../views/home/index'
 
-//import USER_LOGIN from '../views/user/login'
-import USER_LOGIN from '../views/config/index'
+import USER_LOGIN from '../views/user/login'
+// import USER_LOGIN from '../views/config/index'
 import USER_INDEX from '../views/user/index'
 
 import LOG_REALTIME from '../views/log/realtime'

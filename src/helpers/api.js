@@ -10,6 +10,8 @@ const API = {
     login: (data) => axios.post('login', data),
     get_users: () => axios.get('users'),
 
+    get_config: () => axios.get('/config'),
+    set_config:  (data) => axios.post('/set-config', data),
     get_log_realtime: (params = {}) => axios.get('log/output', {params}),
     // Query
     get_query: () => axios.get('query'),
